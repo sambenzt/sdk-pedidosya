@@ -1,0 +1,44 @@
+version: '3'
+services:
+ 
+  #PHP
+  app:
+    build:
+      args:
+        user: www
+        uid: 1000
+      context: .
+      dockerfile: Dockerfile
+    image: sdk-pedidosya
+    container_name: sdk-pedidosya
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: sdk-pedidosya-app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+        - ./:/var/www
+        - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
+ 
+  #Nginx
+  webserver:
+    image: nginx:alpine
+    container_name: webserver-sdk-pedidosya
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8181:80"
+      - "458:443"
+    volumes:
+        - ./:/var/www
+        - ./nginx/conf.d:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+ 
+#Redes
+networks:
+  app-network:
+    driver: bridge
